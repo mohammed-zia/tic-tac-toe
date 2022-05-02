@@ -7,6 +7,7 @@
 
 # We'll have a class from which we can create a board object
 class Board
+  # Our board will be a hash of values that will be accessible by entering the corresponding key
   @@new_board = { '1': ' ', '2': ' ', '3': ' ',
                   '4': ' ', '5': ' ', '6': ' ',
                   '7': ' ', '8': ' ', '9': ' ' }
@@ -31,6 +32,7 @@ class Board
     @board[position] = player.marker
   end
 
+  # Checks if the game is won by seeing if either letter takes up an entire slice of these arrays
   def game_won?(player)
     win_slices = [
                   # HORIZONTAL WIN SLICES
@@ -67,6 +69,7 @@ class Game
   attr_accessor :turns
 
   def initialize
+    # Max possible moves is 9
     @turns = 9
   end
 end
@@ -77,29 +80,38 @@ def start_game
   player2 = Player.new('O')
   board = Board.new
   player = player1
+  # While there are turns
   while game.turns.positive?
     play_round(player, board, game)
     if board.game_won?(player) == true
       board.print_board
       game_over(player)
     else
+      # Switch players
       if player.marker == "X"
         player = player2
       else
         player = player1
       end
+      # Decrement turns after the player has swapped
       game.turns -= 1
     end
   end
+  # If we break out of the while loop then n must be = 0, there are no moves left to make and no winner - it's a tie.
+  board.print_board
+  puts "It's a tie!"
+  exit
 end
 
 def play_round(player, board, game)
   puts board.print_board
   desired_placement = gets.chomp
+  # Check if the move hasn't already been made, and that it's a valid number (1-9)
   if board.moves.none?(desired_placement) && board.allowable_moves.one?(desired_placement)
     board.place_marker(player, desired_placement)
     board.moves.push(desired_placement)
   else
+    # Reset the turn counter and the current round to avoid losing a turn and swapping players on an invalid move.
     puts 'Invalid move'
     game.turns += 1
     play_round(player, board, game)
